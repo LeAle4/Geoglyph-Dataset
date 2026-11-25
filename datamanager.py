@@ -5,7 +5,7 @@ from typing import NamedTuple
 
 import numpy as np
 import pandas as pd
-from PIL import Image
+import imageio
 from pathlib import Path
 
 from parameters import GEO_CLASS, GROUND_CLASS
@@ -501,8 +501,7 @@ class DataWriter:
                     "geometry": geometry,
                 })
 
-        img = Image.fromarray(image)
-        img.save(self.BASE / self.working_site["SITE_NAME"] / f"{full_id}.png")
+        imageio.imwrite(self.BASE / self.working_site["SITE_NAME"] / f"{full_id}.png", image)
 
     def add_polygon_datapoint(self, datapoint: DataPoint) -> None:
         """Add a polygon datapoint to the polygon records for the current site.

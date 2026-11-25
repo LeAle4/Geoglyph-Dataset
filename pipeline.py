@@ -1,5 +1,7 @@
 import json
 from pathlib import Path
+import imageio
+import numpy as np
 
 from extract import get_polygon_imgs
 from resize import resize_datapoint_image
@@ -20,6 +22,21 @@ REQUIRED_CONFIG_KEYS = {
     "negatives_ratio",
 }
 
+def save_unprocessed_image(window_img: np.ndarray, output_path: Path) -> None:
+    """Save the raw image window to disk as a PNG file.
+
+    Parameters
+    ----------
+    window_img : np.ndarray
+        Image array in HWC format (height, width, channels).
+    output_path : Path
+        Path to save the PNG file.
+    """
+    # Normalize and convert to uint8 for saving
+    img_to_save = np.clip(window_img, 0, 255).astype(np.uint8)
+    imageio.imwrite(output_path, img_to_save)
+
+DEBUG_FOLDER = ROOT_DIR / "debug"
 
 def load_config():
     with CONFIG_PATH.open(encoding="utf-8") as config_file:
@@ -53,6 +70,9 @@ def main():
         for geo_datapoint in get_polygon_imgs(site, window_size, stride, target_scale):
             polygon_boundaries.append(geo_datapoint.polygon_bounds)
             writer.add_polygon_datapoint(geo_datapoint)
+
+            # For debugging or inspection, save the unprocessed image
+            save_unprocessed_image(geo_datapoint.image, writer.BASE / DEBUG_FOLDER / f"{site.name}_{geo_datapoint.id}_unprocessed.png")
             
             print(f"Processing polygon datapoint: {geo_datapoint.id}")
             resize_datapoint_image(geo_datapoint, target_scale, window_size=window_size, stride=stride)

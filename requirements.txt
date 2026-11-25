@@ -1,0 +1,4 @@
+rasterio>=1.5.2
+geopandas>=1.2.0
+scipy>=1.18.1
+scikit-image>=0.26.0
